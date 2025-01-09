@@ -43,6 +43,7 @@ struct ContentView: View {
     @State private var isGameOver = false
     @State private var showingPresetPicker = false
     @State private var isSoundEnabled = true
+    @State private var showingResetConfirmation = false
     
     private var audioPlayer1: AVAudioPlayer?
     private var audioPlayer2: AVAudioPlayer?
@@ -118,7 +119,7 @@ struct ContentView: View {
                     .padding()
                     
                     Button("Reset") {
-                        resetGame()
+                        showingResetConfirmation = true
                     }
                     .padding()
                     
@@ -186,6 +187,14 @@ struct ContentView: View {
                     resetGame()
                 }
             )
+        }
+        .alert("Confirm Reset", isPresented: $showingResetConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Reset", role: .destructive) {
+                resetGame()
+            }
+        } message: {
+            Text("Are you sure you want to reset the timer?")
         }
     }
     
