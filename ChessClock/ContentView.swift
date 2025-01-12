@@ -98,12 +98,7 @@ struct ContentView: View {
             VStack {
                 HStack {
                     Button(action: {
-                        if activePlayer == nil {
-                            showingPresetPicker = true
-                        } else {
-                            // Game is paused but active
-                            showingPresetPicker = true
-                        }
+                        showingPresetPicker = true
                     }) {
                         VStack {
                             Text("\(presets[selectedPresetIndex].name)")
@@ -114,6 +109,28 @@ struct ContentView: View {
                         }
                         .padding()
                     }
+                    .disabled(activePlayer != nil)
+                    
+                    if isGameInProgress {
+                        Button(action: {
+                            if activePlayer == nil {
+                                switchToPlayer(1)
+                            } else {
+                                pauseGame()
+                            }
+                        }) {
+                            Image(systemName: activePlayer == nil ? "play.fill" : "pause.fill")
+                                .font(.system(size: 20))
+                        }
+                        .padding()
+                    }
+                    
+                    if isGameInProgress && activePlayer == nil {
+                        Button("Reset") {
+                            showingResetConfirmation = true
+                        }
+                        .padding()
+                    }
                     
                     Button(action: {
                         isSoundEnabled.toggle()
@@ -121,20 +138,6 @@ struct ContentView: View {
                         Image(systemName: isSoundEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
                             .foregroundColor(isSoundEnabled ? .blue : .gray)
                             .font(.system(size: 20))
-                    }
-                    .padding()
-                    
-                    Button("Reset") {
-                        showingResetConfirmation = true
-                    }
-                    .padding()
-                    
-                    Button(activePlayer == nil ? "Start" : "Pause") {
-                        if activePlayer == nil {
-                            switchToPlayer(1)
-                        } else {
-                            pauseGame()
-                        }
                     }
                     .padding()
                 }
@@ -319,7 +322,7 @@ struct TimeDisplay: View {
     private var timeString: String {
         let minutes = Int(seconds) / 60
         let remainingSeconds = Int(seconds) % 60
-        return String(format: "%02d:%02d", minutes, remainingSeconds)
+        return String(format: "%d:%02d", minutes, remainingSeconds)
     }
 }
 
