@@ -46,6 +46,8 @@ struct ContentView: View {
     @State private var showingResetConfirmation = false
     @State private var showingPresetChangeConfirmation = false
     @State private var pendingPresetIndex: Int?
+    @State private var player1Turns = 0
+    @State private var player2Turns = 0
     
     private var audioPlayer1: AVAudioPlayer?
     private var audioPlayer2: AVAudioPlayer?
@@ -94,7 +96,8 @@ struct ContentView: View {
                     TimeDisplay(
                         seconds: player2Time,
                         isActive: activePlayer == 2,
-                        showTapToStart: activePlayer == nil
+                        showTapToStart: activePlayer == nil,
+                        turnCount: player2Turns
                     )
                     Spacer()
                 }
@@ -209,7 +212,8 @@ struct ContentView: View {
                     TimeDisplay(
                         seconds: player1Time,
                         isActive: activePlayer == 1,
-                        showTapToStart: activePlayer == nil
+                        showTapToStart: activePlayer == nil,
+                        turnCount: player1Turns
                     )
                     Spacer()
                 }
@@ -259,8 +263,10 @@ struct ContentView: View {
         if let previousPlayer = activePlayer {
             if previousPlayer == 1 {
                 player1Time += increment
+                player1Turns += 1
             } else {
                 player2Time += increment
+                player2Turns += 1
             }
         }
         
@@ -293,6 +299,8 @@ struct ContentView: View {
         let preset = presets[selectedPresetIndex]
         player1Time = preset.initialSeconds
         player2Time = preset.initialSeconds
+        player1Turns = 0
+        player2Turns = 0
         activePlayer = nil
         isGameOver = false
     }
@@ -330,12 +338,23 @@ struct TimeDisplay: View {
     let seconds: TimeInterval
     let isActive: Bool
     let showTapToStart: Bool
+    let turnCount: Int
     
     var body: some View {
         VStack(spacing: 8) {
-            Text(timeString)
-                .font(.system(size: 60, design: .monospaced))
-                .foregroundColor(seconds <= 30 ? .red : .primary)
+            ZStack {
+                Text(timeString)
+                    .font(.system(size: 60, design: .monospaced))
+                    .foregroundColor(seconds <= 30 ? .red : .primary)
+                
+                HStack {
+                    Spacer()
+                    Text("Moves: \(turnCount)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(8)
+                }
+            }
             
             if showTapToStart {
                 Text("Tap to Start")
