@@ -44,6 +44,8 @@ struct ContentView: View {
     @State private var showingPresetPicker = false
     @State private var isSoundEnabled = true
     @State private var showingResetConfirmation = false
+    @State private var showingPresetChangeConfirmation = false
+    @State private var pendingPresetIndex: Int?
     
     private var audioPlayer1: AVAudioPlayer?
     private var audioPlayer2: AVAudioPlayer?
@@ -96,7 +98,12 @@ struct ContentView: View {
             VStack {
                 HStack {
                     Button(action: {
-                        showingPresetPicker = true
+                        if activePlayer == nil {
+                            showingPresetPicker = true
+                        } else {
+                            // Game is paused but active
+                            showingPresetPicker = true
+                        }
                     }) {
                         VStack {
                             Text("\(presets[selectedPresetIndex].name)")
@@ -107,7 +114,6 @@ struct ContentView: View {
                         }
                         .padding()
                     }
-                    .disabled(activePlayer != nil)
                     
                     Button(action: {
                         isSoundEnabled.toggle()
@@ -138,9 +144,15 @@ struct ContentView: View {
                     List {
                         ForEach(0..<presets.count, id: \.self) { index in
                             Button(action: {
-                                selectedPresetIndex = index
-                                showingPresetPicker = false
-                                resetGame()
+                                if isGameInProgress {
+                                    pendingPresetIndex = index
+                                    showingPresetPicker = false
+                                    showingPresetChangeConfirmation = true
+                                } else {
+                                    selectedPresetIndex = index
+                                    showingPresetPicker = false
+                                    resetGame()
+                                }
                             }) {
                                 HStack {
                                     VStack(alignment: .leading) {
@@ -195,6 +207,20 @@ struct ContentView: View {
             }
         } message: {
             Text("Are you sure you want to reset the timer?")
+        }
+        .alert("Change Time Control?", isPresented: $showingPresetChangeConfirmation) {
+            Button("Cancel", role: .cancel) {
+                pendingPresetIndex = nil
+            }
+            Button("Change", role: .destructive) {
+                if let newIndex = pendingPresetIndex {
+                    selectedPresetIndex = newIndex
+                    resetGame()
+                }
+                pendingPresetIndex = nil
+            }
+        } message: {
+            Text("Changing the time control will reset the current game. Are you sure?")
         }
     }
     
@@ -263,6 +289,12 @@ struct ContentView: View {
                 player.play()
             }
         }
+    }
+    
+    private var isGameInProgress: Bool {
+        let currentPreset = presets[selectedPresetIndex]
+        return player1Time != currentPreset.initialSeconds || 
+               player2Time != currentPreset.initialSeconds
     }
 }
 
