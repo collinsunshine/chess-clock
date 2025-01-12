@@ -82,14 +82,24 @@ struct ContentView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             // Player 2 clock (rotated for better UX)
             Button(action: {
                 if activePlayer == nil || activePlayer == 2 {
                     switchToPlayer(1)
                 }
             }) {
-                TimeDisplay(seconds: player2Time, isActive: activePlayer == 2)
+                VStack {
+                    Spacer()
+                    TimeDisplay(
+                        seconds: player2Time,
+                        isActive: activePlayer == 2,
+                        showTapToStart: activePlayer == nil
+                    )
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(activePlayer == 2 ? Color.blue.opacity(0.1) : Color.clear)
             }
             .rotationEffect(.degrees(180))
             .disabled(isGameOver || activePlayer == 1)
@@ -125,13 +135,6 @@ struct ContentView: View {
                         .padding()
                     }
                     
-                    if isGameInProgress && activePlayer == nil {
-                        Button("Reset") {
-                            showingResetConfirmation = true
-                        }
-                        .padding()
-                    }
-                    
                     Button(action: {
                         isSoundEnabled.toggle()
                     }) {
@@ -140,8 +143,19 @@ struct ContentView: View {
                             .font(.system(size: 20))
                     }
                     .padding()
+                    
+                    if isGameInProgress && activePlayer == nil {
+                        Button(action: {
+                            showingResetConfirmation = true
+                        }) {
+                            Image(systemName: "arrow.counterclockwise")
+                                .font(.system(size: 20))
+                        }
+                        .padding()
+                    }
                 }
             }
+            .padding(.vertical, 8)
             .sheet(isPresented: $showingPresetPicker) {
                 NavigationView {
                     List {
@@ -190,10 +204,21 @@ struct ContentView: View {
                     switchToPlayer(2)
                 }
             }) {
-                TimeDisplay(seconds: player1Time, isActive: activePlayer == 1)
+                VStack {
+                    Spacer()
+                    TimeDisplay(
+                        seconds: player1Time,
+                        isActive: activePlayer == 1,
+                        showTapToStart: activePlayer == nil
+                    )
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(activePlayer == 1 ? Color.blue.opacity(0.1) : Color.clear)
             }
             .disabled(isGameOver || activePlayer == 2)
         }
+        .ignoresSafeArea()
         .alert(isPresented: $isGameOver) {
             Alert(
                 title: Text("Game Over"),
@@ -304,19 +329,21 @@ struct ContentView: View {
 struct TimeDisplay: View {
     let seconds: TimeInterval
     let isActive: Bool
+    let showTapToStart: Bool
     
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 12)
-                .fill(isActive ? Color.blue.opacity(0.2) : Color.gray.opacity(0.2))
-                .frame(maxWidth: .infinity)
-                .frame(height: 200)
-            
+        VStack(spacing: 8) {
             Text(timeString)
                 .font(.system(size: 60, design: .monospaced))
                 .foregroundColor(seconds <= 30 ? .red : .primary)
+            
+            if showTapToStart {
+                Text("Tap to Start")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
         }
-        .padding()
+        .padding(.horizontal)
     }
     
     private var timeString: String {
