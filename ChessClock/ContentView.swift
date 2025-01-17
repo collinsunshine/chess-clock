@@ -49,6 +49,7 @@ struct ContentView: View {
     @State private var player1Turns = 0
     @State private var player2Turns = 0
     @State private var showingSettingsSheet = false
+    @State private var showMoveCounter = true
     
     private var audioPlayer1: AVAudioPlayer?
     private var audioPlayer2: AVAudioPlayer?
@@ -100,7 +101,8 @@ struct ContentView: View {
                         seconds: player2Time,
                         isActive: activePlayer == 2,
                         showTapToStart: activePlayer == nil,
-                        turnCount: player2Turns
+                        turnCount: player2Turns,
+                        showMoveCounter: showMoveCounter
                     )
                     Spacer()
                 }
@@ -205,7 +207,8 @@ struct ContentView: View {
                         seconds: player1Time,
                         isActive: activePlayer == 1,
                         showTapToStart: activePlayer == nil,
-                        turnCount: player1Turns
+                        turnCount: player1Turns,
+                        showMoveCounter: showMoveCounter
                     )
                     Spacer()
                 }
@@ -262,6 +265,7 @@ struct ContentView: View {
             NavigationView {
                 List {
                     Toggle("Sound Effects", isOn: $isSoundEnabled)
+                    Toggle("Show Move Counter", isOn: $showMoveCounter)
                 }
                 .navigationTitle("Settings")
                 .navigationBarItems(trailing: Button("Done") {
@@ -356,6 +360,7 @@ struct TimeDisplay: View {
     let isActive: Bool
     let showTapToStart: Bool
     let turnCount: Int
+    let showMoveCounter: Bool
     
     var body: some View {
         VStack(spacing: 8) {
@@ -366,6 +371,7 @@ struct TimeDisplay: View {
             Text("Moves: \(turnCount)")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
+                .opacity((showMoveCounter && turnCount > 0) ? 1 : 0)
         }
         .padding(.horizontal)
     }
