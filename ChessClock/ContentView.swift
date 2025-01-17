@@ -29,15 +29,15 @@ struct ContentView: View {
         TimeControlPreset(name: "5 min | 3 sec", minutes: 5, increment: 3),
         TimeControlPreset(name: "10 min", minutes: 10, increment: 0),
         TimeControlPreset(name: "10 min | 5 sec", minutes: 10, increment: 5),
-        TimeControlPreset(name: "15 min | 10 sec", minutes: 15, increment: 10),
+        TimeControlPreset(name: "15 min | 5 sec", minutes: 15, increment: 5),
         TimeControlPreset(name: "30 min", minutes: 30, increment: 0),
         TimeControlPreset(name: "30 min | 10 sec", minutes: 30, increment: 10),
         TimeControlPreset(name: "60 min | 30 sec", minutes: 60, increment: 30)
     ]
     
-    @State private var selectedPresetIndex = 2
-    @State private var player1Time: TimeInterval = 600
-    @State private var player2Time: TimeInterval = 600
+    @State private var selectedPresetIndex = 9
+    @State private var player1Time: TimeInterval = 900
+    @State private var player2Time: TimeInterval = 900
     @State private var timer: Timer?
     @State private var activePlayer: Int? = nil
     @State private var isGameOver = false
@@ -122,11 +122,11 @@ struct ContentView: View {
                     }
                     .disabled(activePlayer != nil)
                     
-                    if isGameInProgress {
+                    Spacer()
+                    
+                    if let player = activePlayer {
                         Button(action: {
-                            if activePlayer != nil {
-                                pauseGame()
-                            }
+                            pauseGame()
                         }) {
                             Image(systemName: "pause.fill")
                                 .font(.system(size: 20))
@@ -134,13 +134,15 @@ struct ContentView: View {
                         .padding()
                     }
                     
-                    Button(action: {
-                        showingSettingsSheet = true
-                    }) {
-                        Image(systemName: "gear")
-                            .font(.system(size: 20))
+                    if activePlayer == nil {  // Only show settings when game is not active
+                        Button(action: {
+                            showingSettingsSheet = true
+                        }) {
+                            Image(systemName: "gear")
+                                .font(.system(size: 20))
+                        }
+                        .padding()
                     }
-                    .padding()
                     
                     if isGameInProgress && activePlayer == nil {
                         Button(action: {
