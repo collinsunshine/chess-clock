@@ -48,6 +48,7 @@ struct ContentView: View {
     @State private var pendingPresetIndex: Int?
     @State private var player1Turns = 0
     @State private var player2Turns = 0
+    @State private var showingSettingsSheet = false
     
     private var audioPlayer1: AVAudioPlayer?
     private var audioPlayer2: AVAudioPlayer?
@@ -123,23 +124,20 @@ struct ContentView: View {
                     
                     if isGameInProgress {
                         Button(action: {
-                            if activePlayer == nil {
-                                switchToPlayer(1)
-                            } else {
+                            if activePlayer != nil {
                                 pauseGame()
                             }
                         }) {
-                            Image(systemName: activePlayer == nil ? "play.fill" : "pause.fill")
+                            Image(systemName: "pause.fill")
                                 .font(.system(size: 20))
                         }
                         .padding()
                     }
                     
                     Button(action: {
-                        isSoundEnabled.toggle()
+                        showingSettingsSheet = true
                     }) {
-                        Image(systemName: isSoundEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
-                            .foregroundColor(isSoundEnabled ? .blue : .gray)
+                        Image(systemName: "gear")
                             .font(.system(size: 20))
                     }
                     .padding()
@@ -258,6 +256,17 @@ struct ContentView: View {
         } message: {
             Text("Changing the time control will reset the current game. Are you sure?")
         }
+        .sheet(isPresented: $showingSettingsSheet) {
+            NavigationView {
+                List {
+                    Toggle("Sound Effects", isOn: $isSoundEnabled)
+                }
+                .navigationTitle("Settings")
+                .navigationBarItems(trailing: Button("Done") {
+                    showingSettingsSheet = false
+                })
+            }
+        }
     }
     
     private func switchToPlayer(_ player: Int) {
@@ -295,6 +304,8 @@ struct ContentView: View {
         timer?.invalidate()
         timer = nil
         activePlayer = nil
+        
+        playFeedback(forPlayer: 1)
     }
     
     private func resetGame() {
