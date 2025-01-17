@@ -52,6 +52,8 @@ struct ContentView: View {
     private var audioPlayer1: AVAudioPlayer?
     private var audioPlayer2: AVAudioPlayer?
     
+    @Environment(\.scenePhase) private var scenePhase
+    
     init() {
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
@@ -223,6 +225,18 @@ struct ContentView: View {
             .disabled(isGameOver || activePlayer == 2)
         }
         .ignoresSafeArea()
+        .statusBar(hidden: true)
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .background && activePlayer != nil {
+                pauseGame()
+            }
+        }
+        .onChange(of: isGameInProgress) { newValue in
+            UIApplication.shared.isIdleTimerDisabled = newValue
+        }
+        .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
+        }
         .alert(isPresented: $isGameOver) {
             Alert(
                 title: Text("Game Over"),
