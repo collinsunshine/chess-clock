@@ -368,12 +368,16 @@ struct TimeDisplay: View {
                 .font(.system(size: 60, design: .monospaced))
                 .foregroundColor(seconds <= 30 ? .red : .primary)
             
-            Text("Moves: \(turnCount)")
+            Text(moveCountText)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .opacity((showMoveCounter && turnCount > 0) ? 1 : 0)
         }
         .padding(.horizontal)
+    }
+    
+    private var moveCountText: String {
+        turnCount == 1 ? "1 Move" : "\(turnCount) Moves"
     }
     
     private var timeString: String {
