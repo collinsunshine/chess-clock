@@ -357,25 +357,13 @@ struct TimeDisplay: View {
     
     var body: some View {
         VStack(spacing: 8) {
-            ZStack {
-                Text(timeString)
-                    .font(.system(size: 60, design: .monospaced))
-                    .foregroundColor(seconds <= 30 ? .red : .primary)
-                
-                HStack {
-                    Spacer()
-                    Text("Moves: \(turnCount)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .padding(8)
-                }
-            }
+            Text(timeString)
+                .font(.system(size: 60, design: .monospaced))
+                .foregroundColor(seconds <= 30 ? .red : .primary)
             
-            if showTapToStart {
-                Text("Tap to Start")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
+            Text("Moves: \(turnCount)")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
         }
         .padding(.horizontal)
     }
