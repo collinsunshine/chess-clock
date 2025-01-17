@@ -20,19 +20,19 @@ struct TimeControlPreset {
 
 struct ContentView: View {
     private let presets = [
-        TimeControlPreset(name: "Bullet", minutes: 1, increment: 0),
-        TimeControlPreset(name: "Bullet", minutes: 1, increment: 1),
-        TimeControlPreset(name: "Bullet", minutes: 2, increment: 1),
-        TimeControlPreset(name: "Blitz", minutes: 3, increment: 0),
-        TimeControlPreset(name: "Blitz", minutes: 3, increment: 2),
-        TimeControlPreset(name: "Blitz", minutes: 5, increment: 0),
-        TimeControlPreset(name: "Blitz", minutes: 5, increment: 3),
-        TimeControlPreset(name: "Rapid", minutes: 10, increment: 0),
-        TimeControlPreset(name: "Rapid", minutes: 10, increment: 5),
-        TimeControlPreset(name: "Rapid", minutes: 15, increment: 10),
-        TimeControlPreset(name: "Classical", minutes: 30, increment: 0),
-        TimeControlPreset(name: "Classical", minutes: 30, increment: 10),
-        TimeControlPreset(name: "Classical", minutes: 60, increment: 30)
+        TimeControlPreset(name: "1 min", minutes: 1, increment: 0),
+        TimeControlPreset(name: "1 min | 1 sec", minutes: 1, increment: 1),
+        TimeControlPreset(name: "2 min | 1 sec", minutes: 2, increment: 1),
+        TimeControlPreset(name: "3 min", minutes: 3, increment: 0),
+        TimeControlPreset(name: "3 min | 2 sec", minutes: 3, increment: 2),
+        TimeControlPreset(name: "5 min", minutes: 5, increment: 0),
+        TimeControlPreset(name: "5 min | 3 sec", minutes: 5, increment: 3),
+        TimeControlPreset(name: "10 min", minutes: 10, increment: 0),
+        TimeControlPreset(name: "10 min | 5 sec", minutes: 10, increment: 5),
+        TimeControlPreset(name: "15 min | 10 sec", minutes: 15, increment: 10),
+        TimeControlPreset(name: "30 min", minutes: 30, increment: 0),
+        TimeControlPreset(name: "30 min | 10 sec", minutes: 30, increment: 10),
+        TimeControlPreset(name: "60 min | 30 sec", minutes: 60, increment: 30)
     ]
     
     @State private var selectedPresetIndex = 2
@@ -115,14 +115,9 @@ struct ContentView: View {
                     Button(action: {
                         showingPresetPicker = true
                     }) {
-                        VStack {
-                            Text("\(presets[selectedPresetIndex].name)")
-                                .font(.headline)
-                            Text("\(presets[selectedPresetIndex].minutes)+\(presets[selectedPresetIndex].increment)")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
-                        .padding()
+                        Text(presets[selectedPresetIndex].name)
+                            .font(.headline)
+                            .padding()
                     }
                     .disabled(activePlayer != nil)
                     
@@ -177,13 +172,8 @@ struct ContentView: View {
                                 }
                             }) {
                                 HStack {
-                                    VStack(alignment: .leading) {
-                                        Text(presets[index].name)
-                                            .font(.headline)
-                                        Text("\(presets[index].minutes) minutes + \(presets[index].increment) seconds")
-                                            .font(.subheadline)
-                                            .foregroundColor(.secondary)
-                                    }
+                                    Text(presets[index].name)
+                                        .font(.headline)
                                     
                                     Spacer()
                                     
