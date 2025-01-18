@@ -366,7 +366,7 @@ struct TimeDisplay: View {
         VStack(spacing: 8) {
             Text(timeString)
                 .font(.system(size: 60, design: .monospaced))
-                .foregroundColor(seconds <= 30 ? .red : .primary)
+                .foregroundColor(.primary)
             
             Text(moveCountText)
                 .font(.subheadline)
