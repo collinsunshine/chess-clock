@@ -50,6 +50,7 @@ struct ContentView: View {
     @State private var player2Turns = 0
     @State private var showingSettingsSheet = false
     @State private var showMoveCounter = true
+    @State private var lastActivePlayer: Int?
     
     private var audioPlayer1: AVAudioPlayer?
     private var audioPlayer2: AVAudioPlayer?
@@ -126,11 +127,11 @@ struct ContentView: View {
                     
                     Spacer()
                     
-                    if let player = activePlayer {
+                    if isGameInProgress && activePlayer == nil {
                         Button(action: {
-                            pauseGame()
+                            showingResetConfirmation = true
                         }) {
-                            Image(systemName: "pause.fill")
+                            Image(systemName: "arrow.counterclockwise")
                                 .font(.system(size: 20))
                         }
                         .padding()
@@ -146,11 +147,15 @@ struct ContentView: View {
                         .padding()
                     }
                     
-                    if isGameInProgress && activePlayer == nil {
+                    if isGameInProgress {
                         Button(action: {
-                            showingResetConfirmation = true
+                            if activePlayer == nil {
+                                switchToPlayer(lastActivePlayer ?? 1)
+                            } else {
+                                pauseGame()
+                            }
                         }) {
-                            Image(systemName: "arrow.counterclockwise")
+                            Image(systemName: activePlayer == nil ? "play.fill" : "pause.fill")
                                 .font(.system(size: 20))
                         }
                         .padding()
@@ -304,9 +309,12 @@ struct ContentView: View {
                 }
             }
         }
+        
+        lastActivePlayer = player
     }
     
     private func pauseGame() {
+        lastActivePlayer = activePlayer  // Store the last active player
         timer?.invalidate()
         timer = nil
         activePlayer = nil
@@ -323,6 +331,7 @@ struct ContentView: View {
         player1Turns = 0
         player2Turns = 0
         activePlayer = nil
+        lastActivePlayer = nil  // Reset the last active player
         isGameOver = false
     }
     
