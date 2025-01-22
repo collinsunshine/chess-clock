@@ -120,49 +120,65 @@ struct ContentView: View {
                         showingPresetPicker = true
                     }) {
                         Text(presets[selectedPresetIndex].name)
-                            .font(.headline)
-                            .padding()
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 7)
+                            .background(Color(.quaternarySystemFill))
+                            .cornerRadius(40)
                     }
                     .disabled(activePlayer != nil)
                     
                     Spacer()
                     
-                    if isGameInProgress && activePlayer == nil {
-                        Button(action: {
-                            showingResetConfirmation = true
-                        }) {
-                            Image(systemName: "arrow.counterclockwise")
-                                .font(.system(size: 20))
-                        }
-                        .padding()
-                    }
-                    
-                    if activePlayer == nil {  // Only show settings when game is not active
-                        Button(action: {
-                            showingSettingsSheet = true
-                        }) {
-                            Image(systemName: "gear")
-                                .font(.system(size: 20))
-                        }
-                        .padding()
-                    }
-                    
-                    if isGameInProgress {
-                        Button(action: {
-                            if activePlayer == nil {
-                                switchToPlayer(lastActivePlayer ?? 1)
-                            } else {
-                                pauseGame()
+                    HStack(spacing: 16) {
+                        if isGameInProgress && activePlayer == nil {
+                            Button(action: {
+                                showingResetConfirmation = true
+                            }) {
+                                Image(systemName: "arrow.counterclockwise")
+                                    .font(.subheadline)
+                                    .foregroundColor(.primary)
+                                    .frame(width: 34, height: 34)
+                                    .background(Color(.quaternarySystemFill))
+                                    .cornerRadius(17)
                             }
-                        }) {
-                            Image(systemName: activePlayer == nil ? "play.fill" : "pause.fill")
-                                .font(.system(size: 20))
                         }
-                        .padding()
+                        
+                        if activePlayer == nil {
+                            Button(action: {
+                                showingSettingsSheet = true
+                            }) {
+                                Image(systemName: "gear")
+                                    .font(.subheadline)
+                                    .foregroundColor(.primary)
+                                    .frame(width: 34, height: 34)
+                                    .background(Color(.quaternarySystemFill))
+                                    .cornerRadius(17)
+                            }
+                        }
+                        
+                        if isGameInProgress {
+                            Button(action: {
+                                if activePlayer == nil {
+                                    switchToPlayer(lastActivePlayer ?? 1)
+                                } else {
+                                    pauseGame()
+                                }
+                            }) {
+                                Image(systemName: activePlayer == nil ? "play.fill" : "pause.fill")
+                                    .font(.subheadline)
+                                    .foregroundColor(.primary)
+                                    .frame(width: 34, height: 34)
+                                    .background(Color(.quaternarySystemFill))
+                                    .cornerRadius(17)
+                            }
+                        }
                     }
                 }
             }
-            .padding(.vertical, 8)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 22)
             .sheet(isPresented: $showingPresetPicker) {
                 NavigationView {
                     List {
