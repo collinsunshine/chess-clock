@@ -390,7 +390,9 @@ struct TimeDisplay: View {
     var body: some View {
         VStack(spacing: 8) {
             Text(timeString)
-                .font(.system(size: 80, design: .monospaced))
+                .font(.system(size: 90, design: .default))
+                .fontWeight(.regular)
+                .monospacedDigit()
                 .foregroundColor(.primary)
             
             Text(moveCountText)
