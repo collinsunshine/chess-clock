@@ -56,6 +56,7 @@ struct ContentView: View {
     @State private var maskFrame: CGRect = .zero
     @State private var isAnimatingMask = false
     @State private var maskOpacity: Double = 1.0
+    @State private var maskStartFrame: CGRect = .zero
     
     private var audioPlayer1: AVAudioPlayer?
     private var audioPlayer2: AVAudioPlayer?
@@ -108,16 +109,14 @@ struct ContentView: View {
                 .mask(
                     Rectangle()
                         .frame(
-                            width: isAnimatingMask ? maskFrame.width : 0,
-                            height: isAnimatingMask ? maskFrame.height : 0
+                            width: maskFrame.width,
+                            height: maskFrame.height
                         )
                         .position(
-                            x: isAnimatingMask ? maskFrame.midX : targetFrame.midX,
-                            y: isAnimatingMask ? maskFrame.midY : targetFrame.midY
+                            x: maskFrame.midX,
+                            y: maskFrame.midY
                         )
                 )
-                .animation(.easeInOut(duration: 0.3), value: maskFrame)
-                .animation(.easeInOut(duration: 0.3), value: isAnimatingMask)
             
             // Existing VStack with clocks and controls
             VStack(spacing: 0) {
@@ -356,6 +355,12 @@ struct ContentView: View {
             }
         }
         
+        // If starting the game, start with opacity 0
+        if activePlayer == nil {
+            maskOpacity = 0.0
+            maskFrame = player == 1 ? player2Frame : player1Frame
+        }
+        
         withAnimation(.easeInOut(duration: 0.3)) {
             activePlayer = player
             maskFrame = player == 1 ? player1Frame : player2Frame
@@ -404,9 +409,17 @@ struct ContentView: View {
         player1Turns = 0
         player2Turns = 0
         
+        // Fade out first
         withAnimation(.easeInOut(duration: 0.3)) {
             activePlayer = nil
+            maskOpacity = 0.0
+        }
+        
+        // Reset other properties after fade
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             isAnimatingMask = false
+            maskStartFrame = .zero
+            maskFrame = .zero
             maskOpacity = 1.0
         }
         
