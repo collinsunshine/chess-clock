@@ -360,17 +360,23 @@ struct ContentView: View {
             }
         }
         
-        // If starting the game, start with opacity 0
-        if activePlayer == nil {
-            maskOpacity = 0.0
+        // If starting from a paused state, just fade in the existing mask
+        if activePlayer == nil && lastActivePlayer != nil {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                activePlayer = player
+                maskOpacity = 1.0
+            }
+        } else {
+            // Handle both new game start and player switches
+            maskOpacity = activePlayer == nil ? 0.0 : 1.0
             maskFrame = player == 1 ? player2Frame : player1Frame
-        }
-        
-        withAnimation(.easeInOut(duration: 0.3)) {
-            activePlayer = player
-            maskFrame = player == 1 ? player1Frame : player2Frame
-            isAnimatingMask = true
-            maskOpacity = 1.0
+            
+            withAnimation(.easeInOut(duration: 0.3)) {
+                activePlayer = player
+                maskFrame = player == 1 ? player1Frame : player2Frame
+                isAnimatingMask = true
+                maskOpacity = 1.0
+            }
         }
         
         timer?.invalidate()
