@@ -160,8 +160,8 @@ struct ContentView: View {
                             showingPresetPicker = true
                         }) {
                             Text(presets[selectedPresetIndex].name)
-                                .font(.body)
-                                .foregroundColor(.primary)
+                                .font(.headline)
+                                .foregroundColor(activePlayer != nil ? .secondary : .primary)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 7)
                                 .background(Color(.quaternarySystemFill))
