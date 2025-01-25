@@ -108,6 +108,7 @@ struct ContentView: View {
                 .opacity(maskOpacity)
                 .mask(
                     Rectangle()
+                        .cornerRadius(40)
                         .frame(
                             width: maskFrame.width,
                             height: maskFrame.height
@@ -139,6 +140,8 @@ struct ContentView: View {
                             Spacer()
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(.quaternarySystemFill))
+                        .cornerRadius(40)
                     }
                     .rotationEffect(.degrees(180))
                     .disabled(isGameOver || activePlayer == 1)
@@ -272,6 +275,8 @@ struct ContentView: View {
                             Spacer()
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(.quaternarySystemFill))
+                        .cornerRadius(40)
                     }
                     .disabled(isGameOver || activePlayer == 2)
                     .onAppear {
