@@ -144,7 +144,7 @@ struct ContentView: View {
                         .cornerRadius(40)
                     }
                     .rotationEffect(.degrees(180))
-                    .disabled(isGameOver || activePlayer == 1)
+                    .disabled(isGameOver || activePlayer == 1 || (activePlayer == nil && lastActivePlayer != nil))
                     .onAppear {
                         player2Frame = geometry.frame(in: .global)
                     }
@@ -160,7 +160,7 @@ struct ContentView: View {
                             showingPresetPicker = true
                         }) {
                             Text(presets[selectedPresetIndex].name)
-                                .font(.subheadline)
+                                .font(.body)
                                 .foregroundColor(.primary)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 7)
@@ -177,7 +177,7 @@ struct ContentView: View {
                                     showingResetConfirmation = true
                                 }) {
                                     Image(systemName: "arrow.counterclockwise")
-                                        .font(.subheadline)
+                                        .font(.body)
                                         .foregroundColor(.primary)
                                         .frame(width: 34, height: 34)
                                         .background(Color(.quaternarySystemFill))
@@ -190,7 +190,7 @@ struct ContentView: View {
                                     showingSettingsSheet = true
                                 }) {
                                     Image(systemName: "gear")
-                                        .font(.subheadline)
+                                        .font(.body)
                                         .foregroundColor(.primary)
                                         .frame(width: 34, height: 34)
                                         .background(Color(.quaternarySystemFill))
@@ -207,7 +207,7 @@ struct ContentView: View {
                                     }
                                 }) {
                                     Image(systemName: activePlayer == nil ? "play.fill" : "pause.fill")
-                                        .font(.subheadline)
+                                        .font(.body)
                                         .foregroundColor(.primary)
                                         .frame(width: 34, height: 34)
                                         .background(Color(.quaternarySystemFill))
@@ -278,7 +278,7 @@ struct ContentView: View {
                         .background(Color(.quaternarySystemFill))
                         .cornerRadius(40)
                     }
-                    .disabled(isGameOver || activePlayer == 2)
+                    .disabled(isGameOver || activePlayer == 2 || (activePlayer == nil && lastActivePlayer != nil))
                     .onAppear {
                         player1Frame = geometry.frame(in: .global)
                     }
