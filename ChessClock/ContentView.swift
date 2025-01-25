@@ -51,6 +51,11 @@ struct ContentView: View {
     @State private var showingSettingsSheet = false
     @State private var showMoveCounter = true
     @State private var lastActivePlayer: Int?
+    @State private var player1Frame: CGRect = .zero
+    @State private var player2Frame: CGRect = .zero
+    @State private var maskFrame: CGRect = .zero
+    @State private var isAnimatingMask = false
+    @State private var maskOpacity: Double = 1.0
     
     private var audioPlayer1: AVAudioPlayer?
     private var audioPlayer2: AVAudioPlayer?
@@ -89,154 +94,195 @@ struct ContentView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Player 2 clock (rotated for better UX)
-            Button(action: {
-                if activePlayer == nil || activePlayer == 2 {
-                    switchToPlayer(1)
-                }
-            }) {
-                VStack {
-                    Spacer()
-                    TimeDisplay(
-                        seconds: player2Time,
-                        isActive: activePlayer == 2,
-                        showTapToStart: activePlayer == nil,
-                        turnCount: player2Turns,
-                        showMoveCounter: showMoveCounter
-                    )
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(activePlayer == 2 ? Color.blue.opacity(0.1) : Color.clear)
-            }
-            .rotationEffect(.degrees(180))
-            .disabled(isGameOver || activePlayer == 1)
+        ZStack {
+            // Background color (replaces the background when masked)
+            Color(.systemBackground)
+                .edgesIgnoringSafeArea(.all)
             
-            // Center controls
-            VStack {
-                HStack {
+            // Background image with mask
+            Image("mesh-gradient-bg")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .edgesIgnoringSafeArea(.all)
+                .opacity(maskOpacity)
+                .mask(
+                    Rectangle()
+                        .frame(
+                            width: isAnimatingMask ? maskFrame.width : 0,
+                            height: isAnimatingMask ? maskFrame.height : 0
+                        )
+                        .position(
+                            x: isAnimatingMask ? maskFrame.midX : targetFrame.midX,
+                            y: isAnimatingMask ? maskFrame.midY : targetFrame.midY
+                        )
+                )
+                .animation(.easeInOut(duration: 0.3), value: maskFrame)
+                .animation(.easeInOut(duration: 0.3), value: isAnimatingMask)
+            
+            // Existing VStack with clocks and controls
+            VStack(spacing: 0) {
+                // Player 2 clock (rotated for better UX)
+                GeometryReader { geometry in
                     Button(action: {
-                        showingPresetPicker = true
+                        if activePlayer == nil || activePlayer == 2 {
+                            switchToPlayer(1)
+                        }
                     }) {
-                        Text(presets[selectedPresetIndex].name)
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 7)
-                            .background(Color(.quaternarySystemFill))
-                            .cornerRadius(40)
+                        VStack {
+                            Spacer()
+                            TimeDisplay(
+                                seconds: player2Time,
+                                isActive: activePlayer == 2,
+                                showTapToStart: activePlayer == nil,
+                                turnCount: player2Turns,
+                                showMoveCounter: showMoveCounter
+                            )
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-                    .disabled(activePlayer != nil)
-                    
-                    Spacer()
-                    
-                    HStack(spacing: 16) {
-                        if isGameInProgress && activePlayer == nil {
-                            Button(action: {
-                                showingResetConfirmation = true
-                            }) {
-                                Image(systemName: "arrow.counterclockwise")
-                                    .font(.subheadline)
-                                    .foregroundColor(.primary)
-                                    .frame(width: 34, height: 34)
-                                    .background(Color(.quaternarySystemFill))
-                                    .cornerRadius(17)
-                            }
+                    .rotationEffect(.degrees(180))
+                    .disabled(isGameOver || activePlayer == 1)
+                    .onAppear {
+                        player2Frame = geometry.frame(in: .global)
+                    }
+                    .onChange(of: geometry.frame(in: .global)) { newFrame in
+                        player2Frame = newFrame
+                    }
+                }
+                
+                // Center controls
+                VStack {
+                    HStack {
+                        Button(action: {
+                            showingPresetPicker = true
+                        }) {
+                            Text(presets[selectedPresetIndex].name)
+                                .font(.subheadline)
+                                .foregroundColor(.primary)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 7)
+                                .background(Color(.quaternarySystemFill))
+                                .cornerRadius(40)
                         }
+                        .disabled(activePlayer != nil)
                         
-                        if activePlayer == nil {
-                            Button(action: {
-                                showingSettingsSheet = true
-                            }) {
-                                Image(systemName: "gear")
-                                    .font(.subheadline)
-                                    .foregroundColor(.primary)
-                                    .frame(width: 34, height: 34)
-                                    .background(Color(.quaternarySystemFill))
-                                    .cornerRadius(17)
-                            }
-                        }
+                        Spacer()
                         
-                        if isGameInProgress {
-                            Button(action: {
-                                if activePlayer == nil {
-                                    switchToPlayer(lastActivePlayer ?? 1)
-                                } else {
-                                    pauseGame()
+                        HStack(spacing: 16) {
+                            if isGameInProgress && activePlayer == nil {
+                                Button(action: {
+                                    showingResetConfirmation = true
+                                }) {
+                                    Image(systemName: "arrow.counterclockwise")
+                                        .font(.subheadline)
+                                        .foregroundColor(.primary)
+                                        .frame(width: 34, height: 34)
+                                        .background(Color(.quaternarySystemFill))
+                                        .cornerRadius(17)
                                 }
-                            }) {
-                                Image(systemName: activePlayer == nil ? "play.fill" : "pause.fill")
-                                    .font(.subheadline)
-                                    .foregroundColor(.primary)
-                                    .frame(width: 34, height: 34)
-                                    .background(Color(.quaternarySystemFill))
-                                    .cornerRadius(17)
+                            }
+                            
+                            if activePlayer == nil {
+                                Button(action: {
+                                    showingSettingsSheet = true
+                                }) {
+                                    Image(systemName: "gear")
+                                        .font(.subheadline)
+                                        .foregroundColor(.primary)
+                                        .frame(width: 34, height: 34)
+                                        .background(Color(.quaternarySystemFill))
+                                        .cornerRadius(17)
+                                }
+                            }
+                            
+                            if isGameInProgress {
+                                Button(action: {
+                                    if activePlayer == nil {
+                                        switchToPlayer(lastActivePlayer ?? 1)
+                                    } else {
+                                        pauseGame()
+                                    }
+                                }) {
+                                    Image(systemName: activePlayer == nil ? "play.fill" : "pause.fill")
+                                        .font(.subheadline)
+                                        .foregroundColor(.primary)
+                                        .frame(width: 34, height: 34)
+                                        .background(Color(.quaternarySystemFill))
+                                        .cornerRadius(17)
+                                }
                             }
                         }
                     }
                 }
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 22)
-            .sheet(isPresented: $showingPresetPicker) {
-                NavigationView {
-                    List {
-                        ForEach(0..<presets.count, id: \.self) { index in
-                            Button(action: {
-                                if isGameInProgress {
-                                    pendingPresetIndex = index
-                                    showingPresetPicker = false
-                                    showingPresetChangeConfirmation = true
-                                } else {
-                                    selectedPresetIndex = index
-                                    showingPresetPicker = false
-                                    resetGame()
-                                }
-                            }) {
-                                HStack {
-                                    Text(presets[index].name)
-                                        .font(.headline)
-                                    
-                                    Spacer()
-                                    
-                                    if index == selectedPresetIndex {
-                                        Image(systemName: "checkmark")
-                                            .foregroundColor(.blue)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 22)
+                .sheet(isPresented: $showingPresetPicker) {
+                    NavigationView {
+                        List {
+                            ForEach(0..<presets.count, id: \.self) { index in
+                                Button(action: {
+                                    if isGameInProgress {
+                                        pendingPresetIndex = index
+                                        showingPresetPicker = false
+                                        showingPresetChangeConfirmation = true
+                                    } else {
+                                        selectedPresetIndex = index
+                                        showingPresetPicker = false
+                                        resetGame()
+                                    }
+                                }) {
+                                    HStack {
+                                        Text(presets[index].name)
+                                            .font(.headline)
+                                        
+                                        Spacer()
+                                        
+                                        if index == selectedPresetIndex {
+                                            Image(systemName: "checkmark")
+                                                .foregroundColor(.blue)
+                                        }
                                     }
                                 }
+                                .foregroundColor(.primary)
                             }
-                            .foregroundColor(.primary)
                         }
+                        .navigationTitle("Time Controls")
+                        .navigationBarItems(trailing: Button("Done") {
+                            showingPresetPicker = false
+                        })
                     }
-                    .navigationTitle("Time Controls")
-                    .navigationBarItems(trailing: Button("Done") {
-                        showingPresetPicker = false
-                    })
+                }
+                
+                // Player 1 clock
+                GeometryReader { geometry in
+                    Button(action: {
+                        if activePlayer == nil || activePlayer == 1 {
+                            switchToPlayer(2)
+                        }
+                    }) {
+                        VStack {
+                            Spacer()
+                            TimeDisplay(
+                                seconds: player1Time,
+                                isActive: activePlayer == 1,
+                                showTapToStart: activePlayer == nil,
+                                turnCount: player1Turns,
+                                showMoveCounter: showMoveCounter
+                            )
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                    .disabled(isGameOver || activePlayer == 2)
+                    .onAppear {
+                        player1Frame = geometry.frame(in: .global)
+                    }
+                    .onChange(of: geometry.frame(in: .global)) { newFrame in
+                        player1Frame = newFrame
+                    }
                 }
             }
-            
-            // Player 1 clock
-            Button(action: {
-                if activePlayer == nil || activePlayer == 1 {
-                    switchToPlayer(2)
-                }
-            }) {
-                VStack {
-                    Spacer()
-                    TimeDisplay(
-                        seconds: player1Time,
-                        isActive: activePlayer == 1,
-                        showTapToStart: activePlayer == nil,
-                        turnCount: player1Turns,
-                        showMoveCounter: showMoveCounter
-                    )
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(activePlayer == 1 ? Color.blue.opacity(0.1) : Color.clear)
-            }
-            .disabled(isGameOver || activePlayer == 2)
         }
         .ignoresSafeArea()
         .statusBar(hidden: true)
@@ -310,7 +356,13 @@ struct ContentView: View {
             }
         }
         
-        activePlayer = player
+        withAnimation(.easeInOut(duration: 0.3)) {
+            activePlayer = player
+            maskFrame = player == 1 ? player1Frame : player2Frame
+            isAnimatingMask = true
+            maskOpacity = 1.0
+        }
+        
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
             if player == 1 {
@@ -330,10 +382,15 @@ struct ContentView: View {
     }
     
     private func pauseGame() {
-        lastActivePlayer = activePlayer  // Store the last active player
+        lastActivePlayer = activePlayer
         timer?.invalidate()
         timer = nil
-        activePlayer = nil
+        
+        withAnimation(.easeInOut(duration: 0.3)) {
+            activePlayer = nil
+            isAnimatingMask = true
+            maskOpacity = 0.2
+        }
         
         playFeedback(forPlayer: 1)
     }
@@ -346,8 +403,14 @@ struct ContentView: View {
         player2Time = preset.initialSeconds
         player1Turns = 0
         player2Turns = 0
-        activePlayer = nil
-        lastActivePlayer = nil  // Reset the last active player
+        
+        withAnimation(.easeInOut(duration: 0.3)) {
+            activePlayer = nil
+            isAnimatingMask = false
+            maskOpacity = 1.0
+        }
+        
+        lastActivePlayer = nil
         isGameOver = false
     }
     
@@ -377,6 +440,14 @@ struct ContentView: View {
         let currentPreset = presets[selectedPresetIndex]
         return player1Time != currentPreset.initialSeconds || 
                player2Time != currentPreset.initialSeconds
+    }
+    
+    private var targetFrame: CGRect {
+        switch activePlayer {
+        case 1: return player1Frame
+        case 2: return player2Frame
+        default: return .zero
+        }
     }
 }
 
