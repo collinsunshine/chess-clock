@@ -140,7 +140,11 @@ struct ContentView: View {
                             Spacer()
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color(.quaternarySystemFill))
+                        .background(
+                            Color(.quaternarySystemFill)
+                                .opacity(isGameInProgress ? 0 : 1)
+                                .animation(.easeInOut(duration: 0.3), value: isGameInProgress)
+                        )
                         .cornerRadius(40)
                     }
                     .rotationEffect(.degrees(180))
@@ -275,7 +279,11 @@ struct ContentView: View {
                             Spacer()
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color(.quaternarySystemFill))
+                        .background(
+                            Color(.quaternarySystemFill)
+                                .opacity(isGameInProgress ? 0 : 1)
+                                .animation(.easeInOut(duration: 0.3), value: isGameInProgress)
+                        )
                         .cornerRadius(40)
                     }
                     .disabled(isGameOver || activePlayer == 2 || (activePlayer == nil && lastActivePlayer != nil))
@@ -488,11 +496,11 @@ struct TimeDisplay: View {
                 .font(.system(size: 90, design: .default))
                 .fontWeight(.regular)
                 .monospacedDigit()
-                .foregroundColor(.primary)
+                .foregroundColor(isActive ? .white : .secondary)
             
             Text(moveCountText)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(isActive ? .white : .secondary)
                 .opacity((showMoveCounter && turnCount > 0) ? 1 : 0)
         }
         .padding(.horizontal)
