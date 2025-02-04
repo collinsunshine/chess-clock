@@ -133,7 +133,6 @@ struct ContentView: View {
                             TimeDisplay(
                                 seconds: player2Time,
                                 isActive: activePlayer == 2,
-                                showTapToStart: activePlayer == nil,
                                 turnCount: player2Turns,
                                 showMoveCounter: showMoveCounter
                             )
@@ -254,8 +253,15 @@ struct ContentView: View {
                             }
                         }
                         .navigationTitle("Time Controls")
-                        .navigationBarItems(trailing: Button("Done") {
+                        .navigationBarItems(trailing: Button(action: {
                             showingPresetPicker = false
+                        }) {
+                            Image(systemName: "xmark")
+                                .font(.footnote)
+                                .foregroundColor(.primary)
+                                .frame(width: 28, height: 28)
+                                .background(Color(.quaternarySystemFill))
+                                .cornerRadius(14)
                         })
                     }
                 }
@@ -272,7 +278,6 @@ struct ContentView: View {
                             TimeDisplay(
                                 seconds: player1Time,
                                 isActive: activePlayer == 1,
-                                showTapToStart: activePlayer == nil,
                                 turnCount: player1Turns,
                                 showMoveCounter: showMoveCounter
                             )
@@ -347,8 +352,15 @@ struct ContentView: View {
                     Toggle("Show Move Counter", isOn: $showMoveCounter)
                 }
                 .navigationTitle("Settings")
-                .navigationBarItems(trailing: Button("Done") {
+                .navigationBarItems(trailing: Button(action: {
                     showingSettingsSheet = false
+                }) {
+                    Image(systemName: "xmark")
+                        .font(.footnote)
+                        .foregroundColor(.primary)
+                        .frame(width: 28, height: 28)
+                        .background(Color(.quaternarySystemFill))
+                        .cornerRadius(14)
                 })
             }
         }
@@ -486,7 +498,6 @@ struct ContentView: View {
 struct TimeDisplay: View {
     let seconds: TimeInterval
     let isActive: Bool
-    let showTapToStart: Bool
     let turnCount: Int
     let showMoveCounter: Bool
     
