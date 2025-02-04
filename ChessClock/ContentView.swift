@@ -223,47 +223,22 @@ struct ContentView: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 22)
                 .sheet(isPresented: $showingPresetPicker) {
-                    NavigationView {
-                        List {
-                            ForEach(0..<presets.count, id: \.self) { index in
-                                Button(action: {
-                                    if isGameInProgress {
-                                        pendingPresetIndex = index
-                                        showingPresetPicker = false
-                                        showingPresetChangeConfirmation = true
-                                    } else {
-                                        selectedPresetIndex = index
-                                        showingPresetPicker = false
-                                        resetGame()
-                                    }
-                                }) {
-                                    HStack {
-                                        Text(presets[index].name)
-                                            .font(.headline)
-                                        
-                                        Spacer()
-                                        
-                                        if index == selectedPresetIndex {
-                                            Image(systemName: "checkmark")
-                                                .foregroundColor(.blue)
-                                        }
-                                    }
-                                }
-                                .foregroundColor(.primary)
+                    TimeControlsView(
+                        presets: presets,
+                        selectedIndex: selectedPresetIndex,
+                        isGameInProgress: isGameInProgress,
+                        onSelect: { index in
+                            if isGameInProgress {
+                                pendingPresetIndex = index
+                                showingPresetPicker = false
+                                showingPresetChangeConfirmation = true
+                            } else {
+                                selectedPresetIndex = index
+                                showingPresetPicker = false
+                                resetGame()
                             }
                         }
-                        .navigationTitle("Time Controls")
-                        .navigationBarItems(trailing: Button(action: {
-                            showingPresetPicker = false
-                        }) {
-                            Image(systemName: "xmark")
-                                .font(.footnote)
-                                .foregroundColor(.primary)
-                                .frame(width: 28, height: 28)
-                                .background(Color(.quaternarySystemFill))
-                                .cornerRadius(14)
-                        })
-                    }
+                    )
                 }
                 
                 // Player 1 clock
@@ -346,23 +321,10 @@ struct ContentView: View {
             Text("Changing the time control will reset the current game. Are you sure?")
         }
         .sheet(isPresented: $showingSettingsSheet) {
-            NavigationView {
-                List {
-                    Toggle("Sound Effects", isOn: $isSoundEnabled)
-                    Toggle("Show Move Counter", isOn: $showMoveCounter)
-                }
-                .navigationTitle("Settings")
-                .navigationBarItems(trailing: Button(action: {
-                    showingSettingsSheet = false
-                }) {
-                    Image(systemName: "xmark")
-                        .font(.footnote)
-                        .foregroundColor(.primary)
-                        .frame(width: 28, height: 28)
-                        .background(Color(.quaternarySystemFill))
-                        .cornerRadius(14)
-                })
-            }
+            SettingsView(
+                isSoundEnabled: $isSoundEnabled,
+                showMoveCounter: $showMoveCounter
+            )
         }
     }
     
