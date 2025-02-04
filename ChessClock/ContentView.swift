@@ -151,7 +151,7 @@ struct ContentView: View {
                     .onAppear {
                         player2Frame = geometry.frame(in: .global)
                     }
-                    .onChange(of: geometry.frame(in: .global)) { newFrame in
+                    .onChange(of: geometry.frame(in: .global)) { oldFrame, newFrame in
                         player2Frame = newFrame
                     }
                 }
@@ -270,7 +270,7 @@ struct ContentView: View {
                     .onAppear {
                         player1Frame = geometry.frame(in: .global)
                     }
-                    .onChange(of: geometry.frame(in: .global)) { newFrame in
+                    .onChange(of: geometry.frame(in: .global)) { oldFrame, newFrame in
                         player1Frame = newFrame
                     }
                 }
@@ -278,12 +278,12 @@ struct ContentView: View {
         }
         .ignoresSafeArea()
         .statusBar(hidden: true)
-        .onChange(of: scenePhase) { newPhase in
+        .onChange(of: scenePhase) { oldPhase, newPhase in
             if newPhase == .background && activePlayer != nil {
                 pauseGame()
             }
         }
-        .onChange(of: isGameInProgress) { newValue in
+        .onChange(of: isGameInProgress) { oldValue, newValue in
             UIApplication.shared.isIdleTimerDisabled = newValue
         }
         .onDisappear {
