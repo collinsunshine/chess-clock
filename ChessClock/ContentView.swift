@@ -8,16 +8,6 @@
 import SwiftUI
 import AVFoundation
 
-struct TimeControlPreset {
-    let name: String
-    let minutes: Int
-    let increment: Int
-    
-    var initialSeconds: TimeInterval {
-        TimeInterval(minutes * 60)
-    }
-}
-
 struct ContentView: View {
     private let presets = [
         TimeControlPreset(name: "1 min", minutes: 1, increment: 0),
