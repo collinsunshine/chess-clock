@@ -271,7 +271,13 @@ struct ContentView: View {
         // Handle animation for new game start and player switches
         maskFrame = fromFrame
         
-        withAnimation(.easeInOut(duration: 0.3)) {
+        withAnimation(
+            .spring(
+                response: 0.3,
+                dampingFraction: 0.75,
+                blendDuration: 0
+            )
+        ) {
             maskFrame = toFrame
             isAnimatingMask = true
         }
