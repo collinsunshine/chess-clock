@@ -5,6 +5,7 @@ struct TimeControlsView: View {
     let selectedIndex: Int
     let isGameInProgress: Bool
     let onSelect: (Int) -> Void
+    let colorScheme: ColorSchemePreference
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -41,5 +42,6 @@ struct TimeControlsView: View {
                     .cornerRadius(14)
             })
         }
+        .preferredColorScheme(colorScheme.colorScheme)
     }
 } 

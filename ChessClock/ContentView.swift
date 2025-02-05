@@ -22,6 +22,8 @@ struct ContentView: View {
     @State private var maskFrame: CGRect = .zero
     @State private var isAnimatingMask = false
     @State private var maskStartFrame: CGRect = .zero
+    @State private var colorScheme: ColorSchemePreference = .system
+    @AppStorage("colorSchemePreference") private var savedColorScheme: String = ColorSchemePreference.system.rawValue
     
     @Environment(\.scenePhase) private var scenePhase
     
@@ -169,7 +171,8 @@ struct ContentView: View {
                                 showingPresetPicker = false
                                 viewModel.resetGame()
                             }
-                        }
+                        },
+                        colorScheme: colorScheme
                     )
                 }
                 
@@ -211,6 +214,7 @@ struct ContentView: View {
         }
         .ignoresSafeArea()
         .statusBar(hidden: true)
+        .preferredColorScheme(colorScheme.colorScheme)
         .onChange(of: scenePhase) { oldPhase, newPhase in
             if newPhase == .background && viewModel.activePlayer != nil {
                 viewModel.pauseGame()
@@ -256,8 +260,17 @@ struct ContentView: View {
         .sheet(isPresented: $showingSettingsSheet) {
             SettingsView(
                 isSoundEnabled: $viewModel.isSoundEnabled,
-                showMoveCounter: $showMoveCounter
+                showMoveCounter: $showMoveCounter,
+                colorScheme: $colorScheme
             )
+        }
+        .onAppear {
+            if let savedScheme = ColorSchemePreference(rawValue: savedColorScheme) {
+                colorScheme = savedScheme
+            }
+        }
+        .onChange(of: colorScheme) { oldValue, newValue in
+            savedColorScheme = newValue.rawValue
         }
     }
     
