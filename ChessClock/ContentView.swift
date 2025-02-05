@@ -292,7 +292,15 @@ struct TimeDisplay: View {
                 .font(.system(size: 90, design: .default))
                 .fontWeight(.regular)
                 .monospacedDigit()
-                .foregroundColor(isActive ? .white : .secondary)
+                .overlay {
+                    Text(timeString)
+                        .font(.system(size: 90, design: .default))
+                        .fontWeight(.regular)
+                        .monospacedDigit()
+                        .foregroundColor(.white)
+                        .opacity(isActive ? 1 : 0)
+                }
+                .foregroundColor(.secondary)
             
             Text(moveCountText)
                 .font(.subheadline)
